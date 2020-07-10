@@ -1,0 +1,15 @@
+# Python compiled files
+*.pyc
+__pycache__
+
+# Code editor settings
+.vscode/
+
+# PyTorch checkpoint/model files
+*.pth.tar
+
+# Experiments results folders
+results/
+
+# Scripts
+slurm/
