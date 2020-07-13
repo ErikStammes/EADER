@@ -4,7 +4,9 @@ End-to-End Adversarial Erasing for Weakly Supervised Semantic Segmentation
 ## Requirements
 ```
 python >= 3.6
+NVIDIA GPU w/ cuDNN
 ```
+This was developed and tested on Ubuntu 18.04 using a single Tesla V100 GPU.
 
 ## Installation
 - Create a new virtual environment
