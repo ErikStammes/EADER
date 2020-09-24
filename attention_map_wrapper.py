@@ -69,9 +69,11 @@ def attention_map_wrapper(model):
             gcam = gcam.view(batch_size, channel_size, height, width)
             return gcam
 
-        def forward(self, images, labels=None):
+        def forward(self, images, labels=None, compute_gradcam=True):
             """ Extracts the GradCAM after forwarding the input images """
             logits = super().forward(images)
+            if not compute_gradcam:
+                return logits
             self.img_shape = images.size()[2:]
 
             if labels is None:

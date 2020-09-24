@@ -47,6 +47,7 @@ PARSER.add_argument('--train_steps_localizer', default=200, type=int, help='Numb
 PARSER.add_argument('--train_steps_adversarial', default=200, type=int, help='Number of steps to train the adversarial')
 PARSER.add_argument('--attention_type', default='gcam', type=str, help='Attention map method to use (cam or gcam)')
 PARSER.add_argument('--seed', default=None, type=int, help='Seed for initializing training')
+PARSER.add_argument('--share_weights', action='store_true', help='Share weights between the localizer and adversarial')
 
 def main(config):
     """ Main training function """
@@ -62,6 +63,9 @@ def main(config):
 
     if config.evaluate and not config.resume:
         raise ValueError('Can only evaluate from a given checkpoint, use "resume" param')
+
+    if config.share_weights and config.adversarial_model:
+        raise ValueError('When sharing weights, only the localizer needs to be set')
 
     # Load data
     train_loader = load_data('train', config.dataset_root, config.img_resolution, config.batch_size,
@@ -120,7 +124,7 @@ def main(config):
         if adversarial is not None:
             adversarial.train()
         train(localizer, adversarial, localizer_optimizer, adversarial_optimizer, train_loader, epoch, config.alpha,
-              config.beta, training_phase)
+              config.beta, training_phase, config.share_weights)
 
         localizer.eval()
         if adversarial is not None:
@@ -141,7 +145,7 @@ def main(config):
         torch.save(state, save_location)
 
 def train(localizer, adversarial, localizer_optimizer, adversarial_optimizer, dataloader, epoch, alpha, beta,
-          training_phase):
+          training_phase, share_weights):
     """ Loop over training set (in batches) to update the model parameters """
     localizer_criterion = torch.nn.BCELoss()
     adversarial_criterion = torch.nn.BCELoss()
@@ -181,6 +185,13 @@ def train(localizer, adversarial, localizer_optimizer, adversarial_optimizer, da
             if training_phase.train_adversarial:
                 adversarial_loss = adversarial_criterion(adversarial_output, original_targets)
                 current_step += f'Adversarial loss: {adversarial_loss.item():.3f}'
+
+        if share_weights:
+            masked_image = erase_mask(new_images, masks)
+            adversarial_output = localizer(masked_image, compute_gradcam=False)
+            am_loss = compute_am_loss(adversarial_output, new_targets)
+            loss += alpha * am_loss
+            current_step += f'Adversarial loss: {am_loss.item():.3f}'
 
         if i % 10 == 0:
             # Print losses every 10 steps
