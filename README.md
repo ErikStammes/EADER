@@ -1,5 +1,5 @@
 # EADER
-End-to-End Adversarial Erasing for Weakly Supervised Semantic Segmentation
+[End-to-End Adversarial Erasing for Weakly Supervised Semantic Segmentation](https://arxiv.org/abs/2011.04626)
 
 ![image](imgs/eader.png)
 
@@ -46,4 +46,15 @@ See `train.py` for all the available command line arguments.
 After (or during) training you can use a checkpoint file using the `resume` parameter to evaluate the performance (mIoU, precision and recall):
 ```sh
 python train.py --dataset_root $dataset_root --experiment_name evaluation --resume $experiment_name/checkpoint.pth.tar --evaluate
+```
+
+## Citation
+If you code from this repository, please cite the following paper
+```
+@article{stammes2020find,
+  title={Find it if You Can: End-to-End Adversarial Erasing for Weakly-Supervised Semantic Segmentation},
+  author={Stammes, Erik and Runia, Tom FH and Hofmann, Michael and Ghafoorian, Mohsen},
+  journal={arXiv preprint arXiv:2011.04626},
+  year={2020}
+}
 ```
